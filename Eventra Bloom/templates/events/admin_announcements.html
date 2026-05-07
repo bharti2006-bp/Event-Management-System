@@ -1,0 +1,76 @@
+{% extends 'events/admin_base.html' %}
+{% block title %}Announcements — Admin{% endblock %}
+{% block page_title %}Announcements{% endblock %}
+{% block page_sub %}Post and manage campus announcements{% endblock %}
+
+{% block content %}
+<div class="ap-breadcrumb">
+  <a href="{% url 'admin_panel' %}">Dashboard</a> › Announcements
+</div>
+<div class="ap-grid-2">
+  <!-- Create -->
+  <div class="ap-card">
+    <div class="ap-card-header"><span class="ap-card-title">📢 New Announcement</span></div>
+    <div class="ap-card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="ap-form-group">
+          <label class="ap-form-label">Title *</label>
+          <input type="text" name="title" class="ap-form-input" placeholder="Announcement title..." required>
+        </div>
+        <div class="ap-form-group">
+          <label class="ap-form-label">Content *</label>
+          <textarea name="content" class="ap-form-textarea" placeholder="Write your announcement..." required></textarea>
+        </div>
+        <div class="ap-form-group">
+          <label class="ap-form-label">Link to Event (optional)</label>
+          <select name="event" class="ap-form-select">
+            <option value="">— General Announcement —</option>
+            {% for event in events %}
+            <option value="{{ event.pk }}">{{ event.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="ap-form-group">
+          <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+            <input type="checkbox" name="is_pinned" style="width:18px; height:18px; accent-color:#7c3aed;">
+            <span class="ap-form-label" style="margin:0;">📌 Pin to homepage</span>
+          </label>
+        </div>
+        <button type="submit" class="ap-btn ap-btn-primary">📢 Post Announcement</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- List -->
+  <div class="ap-card">
+    <div class="ap-card-header"><span class="ap-card-title">📋 All Announcements ({{ announcements.count }})</span></div>
+    <div style="max-height:600px; overflow-y:auto;">
+      {% for ann in announcements %}
+      <div style="padding:16px 20px; border-bottom:1px solid #f0f0f8; {% if ann.is_pinned %}background:#fdf9ff;{% endif %}">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              {% if ann.is_pinned %}<span style="font-size:0.7rem; background:#ede9fe; color:#5b21b6; padding:2px 8px; border-radius:99px; font-weight:700;">📌 Pinned</span>{% endif %}
+              <strong style="color:#1a1a4e; font-size:0.9rem;">{{ ann.title }}</strong>
+            </div>
+            <p style="color:#666; font-size:0.82rem; margin-bottom:6px; line-height:1.4;">{{ ann.content|truncatechars:80 }}</p>
+            <div style="display:flex; gap:12px; font-size:0.72rem; color:#aaa;">
+              <span>By {{ ann.created_by.username }}</span>
+              <span>{{ ann.created_at|date:"M d, Y" }}</span>
+              {% if ann.event %}<span>🎉 {{ ann.event.title|truncatechars:20 }}</span>{% endif %}
+            </div>
+          </div>
+          <form method="post" action="{% url 'admin_delete_announcement' ann.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="ap-btn ap-btn-danger" style="padding:5px 10px; font-size:0.75rem;" onclick="return confirm('Delete this announcement?')">🗑️</button>
+          </form>
+        </div>
+      </div>
+      {% empty %}
+      <div class="ap-empty" style="padding:40px;"><div class="ap-empty-icon">📢</div><p>No announcements yet.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

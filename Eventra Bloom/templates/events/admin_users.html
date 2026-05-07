@@ -1,0 +1,70 @@
+{% extends 'events/admin_base.html' %}
+{% block title %}Users — Admin{% endblock %}
+{% block page_title %}Users Management{% endblock %}
+{% block page_sub %}Manage student and admin accounts{% endblock %}
+
+{% block content %}
+<div class="ap-breadcrumb">
+  <a href="{% url 'admin_panel' %}">Dashboard</a> › Users
+</div>
+<div class="ap-card">
+  <div class="ap-card-header">
+    <span class="ap-card-title">👥 All Users ({{ users.count }})</span>
+  </div>
+  <div class="ap-card-body">
+    <form method="get" class="ap-search">
+      <input type="text" name="search" class="ap-search-input" placeholder="🔍 Search by name, username, or email..." value="{{ search }}">
+      <button type="submit" class="ap-btn ap-btn-primary">Search</button>
+      {% if search %}<a href="{% url 'admin_users' %}" class="ap-btn ap-btn-edit">Clear</a>{% endif %}
+    </form>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="ap-table">
+      <thead>
+        <tr><th>User</th><th>Email</th><th>Role</th><th>Events Created</th><th>Registrations</th><th>Joined</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:36px; height:36px; background:linear-gradient(135deg,{% if u.is_staff %}#7c3aed,#5b21b6{% else %}#e8829a,#c96b88{% endif %}); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; flex-shrink:0;">{{ u.first_name|first|upper|default:u.username|first|upper }}</div>
+              <div>
+                <strong>{{ u.get_full_name|default:u.username }}</strong>
+                <div style="font-size:0.75rem; color:#aaa;">@{{ u.username }}</div>
+              </div>
+            </div>
+          </td>
+          <td style="color:#555; font-size:0.85rem;">{{ u.email|default:"—" }}</td>
+          <td>
+            <span class="ap-badge {% if u.is_staff %}badge-admin{% else %}badge-user{% endif %}">
+              {% if u.is_staff %}🛡️ Admin{% else %}🎓 Student{% endif %}
+            </span>
+          </td>
+          <td style="text-align:center; font-weight:600; color:#7c3aed;">{{ u.event_count }}</td>
+          <td style="text-align:center; font-weight:600; color:#e8829a;">{{ u.reg_count }}</td>
+          <td style="color:#888; font-size:0.8rem;">{{ u.date_joined|date:"M d, Y" }}</td>
+          <td>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              {% if u != request.user %}
+              <form method="post" action="{% url 'admin_toggle_staff' u.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="ap-btn {% if u.is_staff %}ap-btn-danger{% else %}ap-btn-success{% endif %}" style="font-size:0.75rem; padding:6px 10px;" onclick="return confirm('{% if u.is_staff %}Remove admin access from{% else %}Grant admin access to{% endif %} {{ u.username }}?')">
+                  {% if u.is_staff %}❌ Revoke Admin{% else %}🛡️ Make Admin{% endif %}
+                </button>
+              </form>
+              <a href="{% url 'admin_delete_user' u.pk %}" class="ap-btn ap-btn-danger" style="font-size:0.75rem; padding:6px 10px;">🗑️ Delete</a>
+              {% else %}
+              <span style="color:#ccc; font-size:0.75rem; padding:6px 4px;">You</span>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7"><div class="ap-empty"><div class="ap-empty-icon">👥</div><p>No users found.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

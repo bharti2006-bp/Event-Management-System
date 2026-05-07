@@ -1,0 +1,34 @@
+{% extends 'events/admin_base.html' %}
+{% block title %}Edit Category — Admin{% endblock %}
+{% block page_title %}Edit Category{% endblock %}
+{% block page_sub %}Update category details{% endblock %}
+
+{% block content %}
+<div class="ap-breadcrumb">
+  <a href="{% url 'admin_panel' %}">Dashboard</a> › <a href="{% url 'admin_categories' %}">Categories</a> › Edit
+</div>
+<div class="ap-card" style="max-width:480px;">
+  <div class="ap-card-header"><span class="ap-card-title">✏️ Edit: {{ category.name }}</span></div>
+  <div class="ap-card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="ap-form-group">
+        <label class="ap-form-label">Name</label>
+        <input type="text" name="name" class="ap-form-input" value="{{ category.name }}" required>
+      </div>
+      <div class="ap-form-group">
+        <label class="ap-form-label">Icon (emoji)</label>
+        <input type="text" name="icon" class="ap-form-input" value="{{ category.icon }}" maxlength="10">
+      </div>
+      <div class="ap-form-group">
+        <label class="ap-form-label">Color</label>
+        <input type="color" name="color" value="{{ category.color }}" style="width:60px; height:44px; border-radius:8px; border:1.5px solid #e8e8f0; cursor:pointer; padding:2px;">
+      </div>
+      <div style="display:flex; gap:12px;">
+        <button type="submit" class="ap-btn ap-btn-primary">💾 Save</button>
+        <a href="{% url 'admin_categories' %}" class="ap-btn ap-btn-edit">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
