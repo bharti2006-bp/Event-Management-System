@@ -11,7 +11,7 @@ import json
 
 from .models import Event, Category, Registration, Announcement
 
-ADMIN_SECRET_CODE = "Eventra2026"  # Change this to your desired admin code
+ADMIN_SECRET_CODE = "EVENTRA2026"  # Change this to your desired admin code
 
 
 # ─────────────────────────────────────────────
