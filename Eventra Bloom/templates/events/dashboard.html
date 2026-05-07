@@ -1,0 +1,130 @@
+{% extends 'events/base.html' %}
+{% block title %}Dashboard — EventBloom{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-inner" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+    <div>
+      <h1>📊 Admin Dashboard</h1>
+      <p>Overview of EventBloom activity</p>
+    </div>
+    <a href="{% url 'create_event' %}" class="btn btn-primary">+ New Event</a>
+  </div>
+</div>
+
+<div class="section">
+  <!-- Stat Cards -->
+  <div class="dashboard-grid">
+    <div class="dash-stat-card" style="border-top:4px solid var(--pink);">
+      <div class="dash-stat-icon">🎉</div>
+      <div class="dash-stat-number">{{ total_events }}</div>
+      <div class="dash-stat-label">Total Events</div>
+    </div>
+    <div class="dash-stat-card" style="border-top:4px solid var(--lavender);">
+      <div class="dash-stat-icon">📅</div>
+      <div class="dash-stat-number">{{ upcoming_events }}</div>
+      <div class="dash-stat-label">Upcoming</div>
+    </div>
+    <div class="dash-stat-card" style="border-top:4px solid var(--mint);">
+      <div class="dash-stat-icon">👥</div>
+      <div class="dash-stat-number">{{ total_users }}</div>
+      <div class="dash-stat-label">Total Users</div>
+    </div>
+    <div class="dash-stat-card" style="border-top:4px solid var(--peach);">
+      <div class="dash-stat-icon">🎟️</div>
+      <div class="dash-stat-number">{{ total_registrations }}</div>
+      <div class="dash-stat-label">Registrations</div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; flex-wrap:wrap;">
+    <!-- Recent Events -->
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <span class="dash-section-title">🆕 Recent Events</span>
+        <a href="{% url 'event_list' %}" class="btn btn-outline btn-sm">View All</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Event</th><th>Date</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for event in recent_events %}
+            <tr>
+              <td><a href="{% url 'event_detail' event.pk %}" style="color:var(--text-dark); text-decoration:none; font-weight:500;">{{ event.title|truncatechars:30 }}</a></td>
+              <td>{{ event.date|date:"M d, Y" }}</td>
+              <td><span class="chip {% if event.status == 'upcoming' %}chip-lavender{% elif event.status == 'ongoing' %}chip-mint{% elif event.status == 'completed' %}chip-peach{% else %}chip-pink{% endif %}">{{ event.get_status_display }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" style="text-align:center; color:var(--text-soft);">No events yet</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Popular Events -->
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <span class="dash-section-title">🔥 Most Popular</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Event</th><th>Registrations</th></tr>
+          </thead>
+          <tbody>
+            {% for event in popular_events %}
+            <tr>
+              <td><a href="{% url 'event_detail' event.pk %}" style="color:var(--text-dark); text-decoration:none; font-weight:500;">{{ event.title|truncatechars:32 }}</a></td>
+              <td>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-weight:600; color:var(--pink-deep);">{{ event.reg_count }}</span>
+                  <div style="flex:1; height:6px; background:var(--border); border-radius:99px; min-width:60px;">
+                    <div style="height:100%; background:linear-gradient(90deg,var(--pink),var(--lavender)); border-radius:99px; width:{% widthratio event.reg_count event.max_participants 100 %}%;"></div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="2" style="text-align:center; color:var(--text-soft);">No data yet</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Registrations -->
+  <div class="dash-section" style="margin-top:24px;">
+    <div class="dash-section-header">
+      <span class="dash-section-title">🎟️ Recent Registrations</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Student</th><th>Event</th><th>Status</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+          {% for reg in recent_registrations %}
+          <tr>
+            <td><strong>{{ reg.user.get_full_name|default:reg.user.username }}</strong></td>
+            <td>{{ reg.event.title|truncatechars:28 }}</td>
+            <td><span class="chip {% if reg.status == 'confirmed' %}chip-mint{% elif reg.status == 'cancelled' %}chip-pink{% else %}chip-peach{% endif %}">{{ reg.get_status_display }}</span></td>
+            <td>{{ reg.registered_at|date:"M d, Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="text-align:center; color:var(--text-soft);">No registrations yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top:20px; text-align:center;">
+    <a href="/admin/" class="btn btn-secondary" target="_blank">Open Django Admin Panel →</a>
+  </div>
+</div>
+
+{% endblock %}
