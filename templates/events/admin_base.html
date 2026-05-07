@@ -1,0 +1,394 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin Panel — EventBloom{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <style>
+    /* ── Admin Layout ── */
+    .ap-layout {
+      display: flex;
+      min-height: 100vh;
+      background: #0f0f1a;
+    }
+    /* Sidebar */
+    .ap-sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: linear-gradient(180deg, #1a1a4e 0%, #12122e 100%);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      z-index: 100;
+    }
+    .ap-sidebar-brand {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .ap-sidebar-brand .brand-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #7c3aed, #5b21b6);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      box-shadow: 0 6px 20px rgba(124,58,237,0.4);
+    }
+    .ap-sidebar-brand .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .ap-sidebar-brand .brand-sub {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .ap-nav { padding: 16px 12px; flex: 1; }
+    .ap-nav-section {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      padding: 12px 12px 6px;
+    }
+    .ap-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      margin-bottom: 2px;
+    }
+    .ap-nav-link:hover { background: rgba(124,58,237,0.2); color: #fff; }
+    .ap-nav-link.active { background: rgba(124,58,237,0.35); color: #fff; border-left: 3px solid #7c3aed; padding-left: 11px; }
+    .ap-nav-link .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .ap-sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .ap-user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .ap-avatar {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #7c3aed, #e8829a);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+    .ap-user-name { font-size: 0.85rem; font-weight: 600; color: #fff; }
+    .ap-user-role { font-size: 0.7rem; color: rgba(255,255,255,0.35); }
+    .ap-logout-btn {
+      width: 100%;
+      padding: 9px;
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 9px;
+      color: #fca5a5;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .ap-logout-btn:hover { background: rgba(239,68,68,0.22); }
+    /* Main content */
+    .ap-main {
+      flex: 1;
+      overflow-x: hidden;
+      background: #f0f0f8;
+      min-height: 100vh;
+    }
+    /* Top bar */
+    .ap-topbar {
+      background: #fff;
+      border-bottom: 1px solid #e8e8f0;
+      padding: 0 28px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .ap-topbar-title { font-size: 1.05rem; font-weight: 700; color: #1a1a4e; }
+    .ap-topbar-sub { font-size: 0.78rem; color: #888; margin-top: 1px; }
+    .ap-topbar-actions { display: flex; align-items: center; gap: 10px; }
+    .ap-topbar-badge {
+      background: #7c3aed;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 99px;
+    }
+    /* Content area */
+    .ap-content { padding: 28px; }
+    /* Stat cards */
+    .ap-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .ap-stat-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border-top: 3px solid transparent;
+      transition: transform 0.2s;
+    }
+    .ap-stat-card:hover { transform: translateY(-2px); }
+    .ap-stat-icon { font-size: 1.5rem; margin-bottom: 8px; }
+    .ap-stat-num { font-size: 2rem; font-weight: 800; color: #1a1a4e; line-height: 1; margin-bottom: 4px; }
+    .ap-stat-label { font-size: 0.8rem; color: #888; font-weight: 500; }
+    /* Cards */
+    .ap-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .ap-card-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid #f0f0f8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ap-card-title { font-size: 1rem; font-weight: 700; color: #1a1a4e; }
+    .ap-card-body { padding: 20px 22px; }
+    /* Table */
+    .ap-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    .ap-table th {
+      text-align: left;
+      padding: 11px 14px;
+      background: #f7f7fd;
+      color: #555;
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #e8e8f0;
+    }
+    .ap-table td {
+      padding: 13px 14px;
+      border-bottom: 1px solid #f0f0f8;
+      color: #333;
+      vertical-align: middle;
+    }
+    .ap-table tr:last-child td { border-bottom: none; }
+    .ap-table tr:hover td { background: #faf9ff; }
+    /* Badges */
+    .ap-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .badge-upcoming { background: #ede9fe; color: #5b21b6; }
+    .badge-ongoing { background: #d1fae5; color: #065f46; }
+    .badge-completed { background: #e0f2fe; color: #0369a1; }
+    .badge-cancelled { background: #fee2e2; color: #991b1b; }
+    .badge-confirmed { background: #d1fae5; color: #065f46; }
+    .badge-waitlisted { background: #fef3c7; color: #92400e; }
+    .badge-admin { background: #ede9fe; color: #5b21b6; }
+    .badge-user { background: #f0fdf4; color: #15803d; }
+    /* Action buttons */
+    .ap-btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: all 0.2s; }
+    .ap-btn:hover { transform: translateY(-1px); }
+    .ap-btn-primary { background: #7c3aed; color: white; }
+    .ap-btn-primary:hover { background: #6d28d9; }
+    .ap-btn-edit { background: #ede9fe; color: #5b21b6; }
+    .ap-btn-edit:hover { background: #ddd6fe; }
+    .ap-btn-danger { background: #fee2e2; color: #991b1b; }
+    .ap-btn-danger:hover { background: #fecaca; }
+    .ap-btn-success { background: #d1fae5; color: #065f46; }
+    .ap-btn-success:hover { background: #a7f3d0; }
+    .ap-btn-outline { background: transparent; color: #7c3aed; border: 1.5px solid #7c3aed; }
+    /* Search bar */
+    .ap-search { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .ap-search-input {
+      flex: 1; min-width: 200px;
+      padding: 10px 16px;
+      border: 1.5px solid #e8e8f0;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .ap-search-input:focus { border-color: #7c3aed; }
+    .ap-select {
+      padding: 10px 14px;
+      border: 1.5px solid #e8e8f0;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      background: white;
+      outline: none;
+      cursor: pointer;
+    }
+    /* Form styles */
+    .ap-form-group { margin-bottom: 18px; }
+    .ap-form-label { display: block; font-size: 0.82rem; font-weight: 600; color: #444; margin-bottom: 7px; }
+    .ap-form-input, .ap-form-textarea, .ap-form-select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e8e8f0;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+      background: white;
+    }
+    .ap-form-input:focus, .ap-form-textarea:focus, .ap-form-select:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+    .ap-form-textarea { min-height: 100px; resize: vertical; }
+    /* Breadcrumb */
+    .ap-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #999; margin-bottom: 20px; }
+    .ap-breadcrumb a { color: #7c3aed; text-decoration: none; }
+    .ap-breadcrumb a:hover { text-decoration: underline; }
+    /* Messages */
+    .ap-message { padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 0.88rem; display: flex; align-items: center; gap: 8px; }
+    .ap-message-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .ap-message-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .ap-message-warning { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    /* Empty state */
+    .ap-empty { text-align: center; padding: 40px; color: #aaa; }
+    .ap-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+    /* Progress bar */
+    .ap-progress { height: 6px; background: #e8e8f0; border-radius: 99px; overflow: hidden; min-width: 60px; }
+    .ap-progress-fill { height: 100%; background: linear-gradient(90deg, #7c3aed, #e8829a); border-radius: 99px; }
+    /* Responsive sidebar toggle */
+    .ap-sidebar-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #1a1a4e;
+      padding: 6px;
+    }
+    @media (max-width: 900px) {
+      .ap-sidebar { position: fixed; left: -260px; transition: left 0.3s; }
+      .ap-sidebar.open { left: 0; }
+      .ap-sidebar-toggle { display: block; }
+    }
+    .ap-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .ap-grid-2 { grid-template-columns: 1fr; } }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="ap-layout">
+  <!-- Sidebar -->
+  <aside class="ap-sidebar" id="apSidebar">
+    <div class="ap-sidebar-brand">
+      <div class="brand-icon">🛡️</div>
+      <div class="brand-name">EventBloom</div>
+      <div class="brand-sub">Admin Panel</div>
+    </div>
+
+    <nav class="ap-nav">
+      <div class="ap-nav-section">Main</div>
+      <a href="{% url 'admin_panel' %}" class="ap-nav-link {% if request.resolver_match.url_name == 'admin_panel' %}active{% endif %}">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+
+      <div class="ap-nav-section">Manage</div>
+      <a href="{% url 'admin_events' %}" class="ap-nav-link {% if 'admin_event' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="nav-icon">🎉</span> Events
+      </a>
+      <a href="{% url 'admin_users' %}" class="ap-nav-link {% if 'admin_user' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="nav-icon">👥</span> Users
+      </a>
+      <a href="{% url 'admin_registrations' %}" class="ap-nav-link {% if 'admin_registration' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="nav-icon">🎟️</span> Registrations
+      </a>
+      <a href="{% url 'admin_categories' %}" class="ap-nav-link {% if 'admin_categor' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="nav-icon">🏷️</span> Categories
+      </a>
+      <a href="{% url 'admin_announcements' %}" class="ap-nav-link {% if 'admin_announcement' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="nav-icon">📢</span> Announcements
+      </a>
+
+      <div class="ap-nav-section">Site</div>
+      <a href="{% url 'home' %}" class="ap-nav-link" target="_blank">
+        <span class="nav-icon">🌐</span> View Site
+      </a>
+      <a href="{% url 'create_event' %}" class="ap-nav-link">
+        <span class="nav-icon">➕</span> New Event
+      </a>
+    </nav>
+
+    <div class="ap-sidebar-footer">
+      <div class="ap-user-info">
+        <div class="ap-avatar">{{ user.first_name|first|upper|default:user.username|first|upper }}</div>
+        <div>
+          <div class="ap-user-name">{{ user.get_full_name|default:user.username }}</div>
+          <div class="ap-user-role">🛡️ Administrator</div>
+        </div>
+      </div>
+      <a href="{% url 'logout' %}" class="ap-logout-btn">Sign Out →</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="ap-main">
+    <!-- Topbar -->
+    <div class="ap-topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="ap-sidebar-toggle" onclick="document.getElementById('apSidebar').classList.toggle('open')">☰</button>
+        <div>
+          <div class="ap-topbar-title">{% block page_title %}Admin Panel{% endblock %}</div>
+          <div class="ap-topbar-sub">{% block page_sub %}EventBloom Administration{% endblock %}</div>
+        </div>
+      </div>
+      <div class="ap-topbar-actions">
+        <span class="ap-topbar-badge">🛡️ Admin</span>
+        <a href="{% url 'home' %}" class="ap-btn ap-btn-outline" style="font-size:0.78rem; padding:6px 12px;">← Site</a>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="ap-content">
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="ap-message {% if msg.tags == 'success' %}ap-message-success{% elif msg.tags == 'error' %}ap-message-error{% else %}ap-message-warning{% endif %}">
+            {% if msg.tags == 'success' %}✅{% elif msg.tags == 'error' %}❌{% else %}⚠️{% endif %}
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,68 @@
+{% extends 'events/admin_base.html' %}
+{% block title %}Categories — Admin{% endblock %}
+{% block page_title %}Categories{% endblock %}
+{% block page_sub %}Manage event categories{% endblock %}
+
+{% block content %}
+<div class="ap-breadcrumb">
+  <a href="{% url 'admin_panel' %}">Dashboard</a> › Categories
+</div>
+<div class="ap-grid-2">
+  <!-- Create -->
+  <div class="ap-card">
+    <div class="ap-card-header"><span class="ap-card-title">➕ New Category</span></div>
+    <div class="ap-card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="ap-form-group">
+          <label class="ap-form-label">Category Name *</label>
+          <input type="text" name="name" class="ap-form-input" placeholder="e.g. Technical" required>
+        </div>
+        <div class="ap-form-group">
+          <label class="ap-form-label">Icon (emoji)</label>
+          <input type="text" name="icon" class="ap-form-input" placeholder="💻" value="🎉" maxlength="10">
+        </div>
+        <div class="ap-form-group">
+          <label class="ap-form-label">Color (hex)</label>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="color" name="color" value="#FFB3C6" style="width:50px; height:40px; border-radius:8px; border:1.5px solid #e8e8f0; cursor:pointer; padding:2px;">
+            <input type="text" id="colorText" value="#FFB3C6" class="ap-form-input" style="flex:1;" placeholder="#FFB3C6" oninput="document.querySelector('[name=color]').value=this.value">
+          </div>
+        </div>
+        <button type="submit" class="ap-btn ap-btn-primary">➕ Create Category</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- List -->
+  <div class="ap-card">
+    <div class="ap-card-header"><span class="ap-card-title">🏷️ All Categories ({{ categories.count }})</span></div>
+    <div style="overflow-x:auto;">
+      <table class="ap-table">
+        <thead><tr><th>Category</th><th>Events</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for cat in categories %}
+          <tr>
+            <td>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:36px; height:36px; background:{{ cat.color }}33; border:2px solid {{ cat.color }}; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">{{ cat.icon }}</div>
+                <span style="font-weight:600; color:#333;">{{ cat.name }}</span>
+              </div>
+            </td>
+            <td style="font-weight:700; color:#7c3aed; text-align:center;">{{ cat.event_count }}</td>
+            <td>
+              <div style="display:flex; gap:6px;">
+                <a href="{% url 'admin_edit_category' cat.pk %}" class="ap-btn ap-btn-edit" style="padding:6px 10px; font-size:0.78rem;">✏️ Edit</a>
+                <a href="{% url 'admin_delete_category' cat.pk %}" class="ap-btn ap-btn-danger" style="padding:6px 10px; font-size:0.78rem;">🗑️</a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" class="ap-empty">No categories yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

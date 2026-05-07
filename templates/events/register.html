@@ -1,0 +1,104 @@
+{% extends 'events/base.html' %}
+{% block title %}Sign Up — EventBloom{% endblock %}
+{% block content %}
+
+<div class="auth-page">
+  <div style="width:100%; max-width:560px;">
+    <div style="text-align:center; margin-bottom:32px;">
+      <div style="width:64px; height:64px; background:linear-gradient(135deg,var(--mint),var(--lavender)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin:0 auto 16px; box-shadow:var(--shadow-md);">✨</div>
+      <h1 style="font-size:2rem; margin-bottom:6px;">Join EventBloom</h1>
+      <p style="color:var(--text-soft);">Create your free account today</p>
+    </div>
+
+    <div class="form-card" style="padding:36px;">
+      <form method="post">
+        {% csrf_token %}
+
+        <!-- Personal Details -->
+        <div style="margin-bottom:20px;">
+          <h3 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-soft); margin-bottom:14px;">👤 Personal Details</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">First Name *</label>
+              <input type="text" name="first_name" class="form-input" placeholder="Jane" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name *</label>
+              <input type="text" name="last_name" class="form-input" placeholder="Smith" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username *</label>
+            <input type="text" name="username" class="form-input" placeholder="jane_smith" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-input" placeholder="jane@college.edu">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Password *</label>
+              <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password *</label>
+              <input type="password" name="confirm_password" class="form-input" placeholder="••••••••" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic Details -->
+        <div style="border-top:1px solid rgba(0,0,0,0.08); padding-top:20px; margin-bottom:20px;">
+          <h3 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-soft); margin-bottom:14px;">🎓 Academic Details</h3>
+          <div class="form-group">
+            <label class="form-label">Roll Number *</label>
+            <input type="text" name="roll_no" class="form-input" placeholder="e.g. CS2021001" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Course *</label>
+            <input type="text" name="course" class="form-input" placeholder="e.g. B.Tech, B.E., M.Tech, MCA" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Branch *</label>
+            <select name="branch" class="form-input" required>
+              <option value="" disabled selected>Select your branch</option>
+              {% for value, label in branch_choices %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Year *</label>
+              <select name="year" class="form-input" required>
+                <option value="" disabled selected>Year</option>
+                {% for value, label in year_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Semester *</label>
+              <select name="semester" class="form-input" required>
+                <option value="" disabled selected>Semester</option>
+                {% for value, label in semester_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%; margin-top:8px;">Create Account 🎉</button>
+      </form>
+
+      <div class="form-divider" style="margin:24px 0;">or</div>
+
+      <p style="text-align:center; font-size:0.9rem; color:var(--text-mid);">
+        Already have an account? <a href="{% url 'login' %}" style="color:var(--pink-deep); font-weight:600;">Login</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

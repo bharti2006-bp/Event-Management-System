@@ -1,0 +1,79 @@
+{% extends 'events/admin_base.html' %}
+{% block title %}Registrations — Admin{% endblock %}
+{% block page_title %}Registrations{% endblock %}
+{% block page_sub %}View and manage all event registrations{% endblock %}
+
+{% block content %}
+<div class="ap-breadcrumb">
+  <a href="{% url 'admin_panel' %}">Dashboard</a> › Registrations
+</div>
+<div class="ap-card">
+  <div class="ap-card-header">
+    <span class="ap-card-title">🎟️ All Registrations ({{ registrations.count }})</span>
+  </div>
+  <div class="ap-card-body">
+    <form method="get" class="ap-search">
+      <input type="text" name="search" class="ap-search-input" placeholder="🔍 Search by student or event..." value="{{ search }}">
+      <select name="status" class="ap-select" onchange="this.form.submit()">
+        <option value="">All Statuses</option>
+        <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+        <option value="waitlisted" {% if status_filter == 'waitlisted' %}selected{% endif %}>Waitlisted</option>
+        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+      </select>
+      <button type="submit" class="ap-btn ap-btn-primary">Search</button>
+      {% if search or status_filter %}<a href="{% url 'admin_registrations' %}" class="ap-btn ap-btn-edit">Clear</a>{% endif %}
+    </form>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="ap-table">
+      <thead>
+        <tr><th>Student</th><th>Roll No</th><th>Branch / Course</th><th>Year / Sem</th><th>Event</th><th>Status</th><th>Registered</th><th>Update Status</th></tr>
+      </thead>
+      <tbody>
+        {% for reg in registrations %}
+        <tr>
+          <td>
+            <strong>{{ reg.user.get_full_name|default:reg.user.username }}</strong>
+            <div style="font-size:0.75rem; color:#aaa;">@{{ reg.user.username }}</div>
+          </td>
+          <td style="font-size:0.85rem; font-weight:600; color:#7c3aed;">
+            {% if reg.user.student_profile %}{{ reg.user.student_profile.roll_no }}{% else %}—{% endif %}
+          </td>
+          <td style="font-size:0.8rem;">
+            {% if reg.user.student_profile %}
+              <div style="font-weight:600;">{{ reg.user.student_profile.get_branch_display }}</div>
+              <div style="color:#888;">{{ reg.user.student_profile.course }}</div>
+            {% else %}—{% endif %}
+          </td>
+          <td style="font-size:0.8rem; text-align:center;">
+            {% if reg.user.student_profile %}
+              <div>Year {{ reg.user.student_profile.year }}</div>
+              <div style="color:#888;">Sem {{ reg.user.student_profile.semester }}</div>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            <a href="{% url 'event_detail' reg.event.pk %}" style="color:#7c3aed; font-weight:600; text-decoration:none;">{{ reg.event.title|truncatechars:30 }}</a>
+            <div style="font-size:0.72rem; color:#aaa;">{{ reg.event.date|date:"M d, Y" }}</div>
+          </td>
+          <td><span class="ap-badge badge-{{ reg.status }}">{{ reg.get_status_display }}</span></td>
+          <td style="color:#888; font-size:0.8rem;">{{ reg.registered_at|date:"M d, Y g:i A" }}</td>
+          <td>
+            <form method="post" action="{% url 'admin_update_registration' reg.pk %}" style="display:flex; gap:6px; align-items:center;">
+              {% csrf_token %}
+              <select name="status" class="ap-select" style="padding:6px 10px; font-size:0.8rem;">
+                <option value="confirmed" {% if reg.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                <option value="waitlisted" {% if reg.status == 'waitlisted' %}selected{% endif %}>Waitlisted</option>
+                <option value="cancelled" {% if reg.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+              </select>
+              <button type="submit" class="ap-btn ap-btn-success" style="padding:6px 12px; font-size:0.78rem;">Save</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8"><div class="ap-empty"><div class="ap-empty-icon">🎟️</div><p>No registrations found.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
